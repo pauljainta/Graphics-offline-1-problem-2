@@ -13,6 +13,9 @@ int drawgrid;
 int drawaxes;
 double angle;
 double square_width,circle_radius,bubble_radius,x_spd,y_spd;
+double max_speed,min_speed;
+
+int pause_variable;
 
 struct point
 {
@@ -68,6 +71,36 @@ void drawGrid()
 			}
 		}glEnd();
 	}
+}
+
+bool check(int i,double d)
+{
+
+
+    double v=sqrt(pow(abs(speed_vectors[i].x),2)+pow(abs(speed_vectors[i].y),2));
+
+    if((d>1 && v<max_speed)|| (d<1 && v>min_speed)) return true;
+
+    return false;
+
+
+}
+
+void increase_speed(double d)
+{
+
+   for(int i=0;i<5;i++)
+   {
+
+      if(check(i,d)){
+       speed_vectors[i].x*=d;
+       speed_vectors[i].y*=d;
+      }
+
+
+   }
+
+
 }
 
 void drawSquare(double a)
@@ -213,6 +246,10 @@ void keyboardListener(unsigned char key, int x,int y){
 		case '1':
 			drawgrid=1-drawgrid;
 			break;
+		case 'p':
+		    if(pause_variable) pause_variable=0;
+		    else pause_variable=1;
+            break;
 
 		default:
 			break;
@@ -223,10 +260,12 @@ void keyboardListener(unsigned char key, int x,int y){
 void specialKeyListener(int key, int x,int y){
 	switch(key){
 		case GLUT_KEY_DOWN:		//down arrow key
-			cameraHeight -= 3.0;
+			//cameraHeight -= 3.0;
+			increase_speed(0.5);
 			break;
 		case GLUT_KEY_UP:		// up arrow key
-			cameraHeight += 3.0;
+			//cameraHeight += 3.0;
+			increase_speed(1.1);
 			break;
 
 		case GLUT_KEY_RIGHT:
@@ -330,19 +369,22 @@ void animate(){
 
 	for(int i=0;i<5;i++)
     {
-       // int random1 = rand() % 10;
-       // if(random1<7) x_spd=0.08;
-       // else x_spd=-0.08;
 
+        if(abs(position_vectors[i].x)+bubble_radius>square_width)
+        {
+            speed_vectors[i].x*=(-1.0);
 
-       // int random2 = rand() % 10;
-       // if(random2<7) y_spd=0.08;
-       // else y_spd=-0.08;
+        }
+         if(abs(position_vectors[i].y)+bubble_radius>square_width)
+        {
+            speed_vectors[i].y*=(-1.0);
 
-       //angle=5*(rand()%i);
+        }
 
+        if(pause_variable==0){
         position_vectors[i].x+=speed_vectors[i].x;
         position_vectors[i].y+=speed_vectors[i].y;
+        }
 
     }
 
@@ -351,18 +393,23 @@ void animate(){
 	glutPostRedisplay();
 }
 
+
+
 void init(){
 	//codes for initialization
 	drawgrid=0;
 	//drawaxes=1;
 	cameraHeight=150.0;
 	cameraAngle=1.0;
-	angle=5;
+	angle=0;
 	square_width=150;
 	circle_radius=80;
 	bubble_radius=15;
 	x_spd=0.008;
 	y_spd=0.008;
+	max_speed=0.9;
+	min_speed=0.02;
+	pause_variable=0;
 
 	for(int i=0;i<5;i++)
     {
@@ -371,9 +418,13 @@ void init(){
         position_vectors[i].y=-square_width+bubble_radius;
         position_vectors[i].z=0;
 
-         speed_vectors[i].x=cos(angle*i)*x_spd - sin(angle*i)*y_spd;
-         speed_vectors[i].y=sin(angle*i)*x_spd + cos(angle*i)*y_spd;
+        //speed vector x =x_spd
+        //speed_vectr y=y _spd
+
+         speed_vectors[i].x=cos(angle)*x_spd - sin(angle)*y_spd;
+         speed_vectors[i].y=sin(angle)*x_spd + cos(angle)*y_spd;
          speed_vectors[i].z=0;
+         angle+=5;
 
 
     }
