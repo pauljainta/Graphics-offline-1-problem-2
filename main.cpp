@@ -12,13 +12,20 @@ double cameraAngle;
 int drawgrid;
 int drawaxes;
 double angle;
-double square_width,circle_radius;
+double square_width,circle_radius,bubble_radius,x_spd,y_spd;
 
 struct point
 {
 	double x,y,z;
 };
 
+double fRand(double fMin, double fMax)
+{
+    double f = (double)rand() / RAND_MAX;
+    return fMin + f * (fMax - fMin);
+}
+
+struct point position_vectors[5],speed_vectors[5];
 
 void drawAxes()
 {
@@ -83,6 +90,8 @@ void drawSquare(double a)
 }
 
 
+
+
 void drawCircle(double radius,int segments)
 {
     int i;
@@ -106,73 +115,51 @@ void drawCircle(double radius,int segments)
     }
 }
 
-void drawCone(double radius,double height,int segments)
+void drawBubbles()
 {
-    int i;
-    double shade;
-    struct point points[100];
-    //generate points
-    for(i=0;i<=segments;i++)
+
+ glColor3f(0.4,0.4,0);
+
+
+    glPushMatrix();
     {
-        points[i].x=radius*cos(((double)i/(double)segments)*2*pi);
-        points[i].y=radius*sin(((double)i/(double)segments)*2*pi);
+     glTranslatef(position_vectors[0].x,position_vectors[0].y,0);
+     drawCircle(bubble_radius,20);
     }
-    //draw triangles using generated points
-    for(i=0;i<segments;i++)
+    glPopMatrix();
+
+    glPushMatrix();
     {
-        //create shading effect
-        if(i<segments/2)shade=2*(double)i/(double)segments;
-        else shade=2*(1.0-(double)i/(double)segments);
-        glColor3f(shade,shade,shade);
-
-        glBegin(GL_TRIANGLES);
-        {
-            glVertex3f(0,0,height);
-			glVertex3f(points[i].x,points[i].y,0);
-			glVertex3f(points[i+1].x,points[i+1].y,0);
-        }
-        glEnd();
+       glTranslatef(position_vectors[1].x,position_vectors[1].y,0);
+       drawCircle(bubble_radius,20);
     }
-}
+    glPopMatrix();
+
+    glPushMatrix();
+    {
+        glTranslatef(position_vectors[2].x,position_vectors[2].y,0);
+        drawCircle(bubble_radius,20);
+    }
+    glPopMatrix();
+
+      glPushMatrix();
+    {
+       glTranslatef(position_vectors[3].x,position_vectors[3].y,0);
+       drawCircle(bubble_radius,20);
+    }
+    glPopMatrix();
+
+    glPushMatrix();
+    {
+        glTranslatef(position_vectors[4].x,position_vectors[4].y,0);
+        drawCircle(bubble_radius,20);
+    }
+    glPopMatrix();
 
 
-void drawSphere(double radius,int slices,int stacks)
-{
-	struct point points[100][100];
-	int i,j;
-	double h,r;
-	//generate points
-	for(i=0;i<=stacks;i++)
-	{
-		h=radius*sin(((double)i/(double)stacks)*(pi/2));
-		r=radius*cos(((double)i/(double)stacks)*(pi/2));
-		for(j=0;j<=slices;j++)
-		{
-			points[i][j].x=r*cos(((double)j/(double)slices)*2*pi);
-			points[i][j].y=r*sin(((double)j/(double)slices)*2*pi);
-			points[i][j].z=h;
-		}
-	}
-	//draw quads using generated points
-	for(i=0;i<stacks;i++)
-	{
-        glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
-		for(j=0;j<slices;j++)
-		{
-			glBegin(GL_QUADS);{
-			    //upper hemisphere
-				glVertex3f(points[i][j].x,points[i][j].y,points[i][j].z);
-				glVertex3f(points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
-				glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
-				glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
-                //lower hemisphere
-                glVertex3f(points[i][j].x,points[i][j].y,-points[i][j].z);
-				glVertex3f(points[i][j+1].x,points[i][j+1].y,-points[i][j+1].z);
-				glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,-points[i+1][j+1].z);
-				glVertex3f(points[i+1][j].x,points[i+1][j].y,-points[i+1][j].z);
-			}glEnd();
-		}
-	}
+
+
+
 }
 
 
@@ -192,6 +179,8 @@ void drawSS()
      drawCircle(circle_radius,30);
     }
     glPopMatrix();
+
+    drawBubbles();
 
 
 
@@ -338,6 +327,27 @@ void display(){
 void animate(){
 	//angle+=0.05;
 	//codes for any changes in Models, Camera
+
+	for(int i=0;i<5;i++)
+    {
+       // int random1 = rand() % 10;
+       // if(random1<7) x_spd=0.08;
+       // else x_spd=-0.08;
+
+
+       // int random2 = rand() % 10;
+       // if(random2<7) y_spd=0.08;
+       // else y_spd=-0.08;
+
+       //angle=5*(rand()%i);
+
+        position_vectors[i].x+=speed_vectors[i].x;
+        position_vectors[i].y+=speed_vectors[i].y;
+
+    }
+
+
+
 	glutPostRedisplay();
 }
 
@@ -347,9 +357,26 @@ void init(){
 	//drawaxes=1;
 	cameraHeight=150.0;
 	cameraAngle=1.0;
-	angle=0;
+	angle=5;
 	square_width=150;
 	circle_radius=80;
+	bubble_radius=15;
+	x_spd=0.008;
+	y_spd=0.008;
+
+	for(int i=0;i<5;i++)
+    {
+
+        position_vectors[i].x=-square_width+bubble_radius;
+        position_vectors[i].y=-square_width+bubble_radius;
+        position_vectors[i].z=0;
+
+         speed_vectors[i].x=cos(angle*i)*x_spd - sin(angle*i)*y_spd;
+         speed_vectors[i].y=sin(angle*i)*x_spd + cos(angle*i)*y_spd;
+         speed_vectors[i].z=0;
+
+
+    }
 
 	//clear the screen
 	glClearColor(0,0,0,0);
