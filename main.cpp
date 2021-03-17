@@ -86,6 +86,8 @@ bool check_speed(int i,double d)
 
 }
 
+
+
 bool checkInCircle(int i)
 {
 
@@ -98,6 +100,31 @@ bool checkInCircle(int i)
 
     return false;
 
+
+}
+
+void collide_with_bubble(int i)
+{
+
+    for(int j=0;j<5;j++)
+    {
+        if(j!=i)
+        {
+
+            double d=sqrt(pow(position_vectors[i].x-position_vectors[j].x,2)+pow(position_vectors[i].y-position_vectors[j].y,2));
+            if(checkInCircle(j) && d==(bubble_radius*2)+0.2)
+            {
+                printf("kj");
+                speed_vectors[i].x*=-1;
+                speed_vectors[i].y*=-1;
+                speed_vectors[j].x*=-1;
+                speed_vectors[j].y*=-1;
+
+
+            }
+        }
+
+    }
 
 }
 
@@ -433,7 +460,11 @@ void animate(){
            {
 
 
-                if(!check_if_enterning(i))  collide_with_circle(i);
+                if(!check_if_enterning(i))
+                {
+                    collide_with_circle(i);
+                  //  collide_with_bubble(i);
+                }
 
            }
 
