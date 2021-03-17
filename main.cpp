@@ -73,7 +73,7 @@ void drawGrid()
 	}
 }
 
-bool check(int i,double d)
+bool check_speed(int i,double d)
 {
 
 
@@ -107,7 +107,7 @@ void increase_speed(double d)
    for(int i=0;i<5;i++)
    {
 
-      if(check(i,d)){
+      if(check_speed(i,d)){
        speed_vectors[i].x*=d;
        speed_vectors[i].y*=d;
       }
@@ -319,17 +319,42 @@ double dotGun(struct point A, struct point B)
     return product;
 }
 
+bool check_if_enterning(int i)
+{
+
+     if(position_vectors[i].x<0 && position_vectors[i].y<0 && speed_vectors[i].x>0 && speed_vectors[i].y>0)
+    {
+
+        return true;
+    }
+
+    else if(position_vectors[i].x>0 && position_vectors[i].y<0 && speed_vectors[i].x<0 && speed_vectors[i].y>0)
+    {
+         return true;
+
+    }
+
+    else if(position_vectors[i].x>0 && position_vectors[i].y>0 && speed_vectors[i].x<0 && speed_vectors[i].y<0)
+    {
+         return true;
+
+    }
+    else if(position_vectors[i].x<0 && position_vectors[i].y>0 && speed_vectors[i].x>0 && speed_vectors[i].y<0)
+    {
+         return true;
+
+    }
+
+    else return false;
+
+}
+
 
 void collide_with_circle(int i)
 {
 
-    if(dotGun(position_vectors[i],speed_vectors[i])<0)
-    {
 
-        return;
-    }
-
-    printf("inside\n");
+ //   printf("inside\n");
 
     double hor_proj_x=-((dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*position_vectors[i].x);
     double hor_proj_y=-((dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*position_vectors[i].y);
@@ -407,17 +432,15 @@ void animate(){
            if(distance_between_centres>=64.8)
            {
 
-              collide_with_circle(i);
 
-             // printf("yes\n");
+                if(!check_if_enterning(i))  collide_with_circle(i);
+
            }
 
 
         }
 
-        else
-        {
-             if(abs(position_vectors[i].x)+bubble_radius>square_width)
+          if(abs(position_vectors[i].x)+bubble_radius>square_width)
          {
             speed_vectors[i].x*=(-1.0);
 
@@ -428,7 +451,6 @@ void animate(){
 
          }
 
-        }
 
         if(pause_variable==0){
         position_vectors[i].x+=speed_vectors[i].x;
