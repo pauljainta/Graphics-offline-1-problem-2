@@ -86,6 +86,21 @@ bool check(int i,double d)
 
 }
 
+bool checkInCircle(int i)
+{
+
+    double distance_between_centres=sqrt(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2));
+    if(distance_between_centres<=circle_radius-bubble_radius)
+    {
+      //  printf("%0.02f\n",distance_between_centres);
+       return true;
+    }
+
+    return false;
+
+
+}
+
 void increase_speed(double d)
 {
 
@@ -217,27 +232,7 @@ void drawSS()
 
 
 
-   /* glRotatef(angle,0,0,1);
-    glTranslatef(110,0,0);
-    glRotatef(2*angle,0,0,1);
-    glColor3f(0,1,0);
-    drawSquare(15);
 
-    glPushMatrix();
-    {
-        glRotatef(angle,0,0,1);
-        glTranslatef(60,0,0);
-        glRotatef(2*angle,0,0,1);
-        glColor3f(0,0,1);
-        drawSquare(10);
-    }
-    glPopMatrix();
-
-    glRotatef(3*angle,0,0,1);
-    glTranslatef(40,0,0);
-    glRotatef(4*angle,0,0,1);
-    glColor3f(1,1,0);
-    drawSquare(5);*/
 }
 
 void keyboardListener(unsigned char key, int x,int y){
@@ -316,6 +311,38 @@ void mouseListener(int button, int state, int x, int y){	//x, y is the x-y of th
 }
 
 
+double dotGun(struct point A, struct point B)
+{
+
+    double product = 0;
+    product = product + (A.x*B.x)+(A.y*B.y)+(A.z*B.z);
+    return product;
+}
+
+
+void collide_with_circle(int i)
+{
+
+    if(dotGun(position_vectors[i],speed_vectors[i])<0)
+    {
+
+        return;
+    }
+
+    printf("inside\n");
+
+    double hor_proj_x=-((dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*position_vectors[i].x);
+    double hor_proj_y=-((dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*position_vectors[i].y);
+    double ver_proj_x=(dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*position_vectors[i].y;
+    double ver_proj_y=(dotGun(speed_vectors[i],position_vectors[i])/(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2)))*(-position_vectors[i].x);
+
+    speed_vectors[i].x=hor_proj_x+ver_proj_x;
+    speed_vectors[i].y=hor_proj_y+ver_proj_y;
+
+
+}
+
+
 
 void display(){
 
@@ -370,14 +397,36 @@ void animate(){
 	for(int i=0;i<5;i++)
     {
 
-        if(abs(position_vectors[i].x)+bubble_radius>square_width)
+
+        // circle collision
+
+        if(checkInCircle(i))
         {
-            speed_vectors[i].x*=(-1.0);
+          //  printf("in circle\n");
+           double distance_between_centres=sqrt(pow(position_vectors[i].x,2)+pow(position_vectors[i].y,2));
+           if(distance_between_centres>=64.8)
+           {
+
+              collide_with_circle(i);
+
+             // printf("yes\n");
+           }
+
 
         }
-         if(abs(position_vectors[i].y)+bubble_radius>square_width)
+
+        else
         {
+             if(abs(position_vectors[i].x)+bubble_radius>square_width)
+         {
+            speed_vectors[i].x*=(-1.0);
+
+         }
+         if(abs(position_vectors[i].y)+bubble_radius>square_width)
+         {
             speed_vectors[i].y*=(-1.0);
+
+         }
 
         }
 
@@ -407,7 +456,7 @@ void init(){
 	bubble_radius=15;
 	x_spd=0.008;
 	y_spd=0.008;
-	max_speed=0.9;
+	max_speed=0.2;
 	min_speed=0.02;
 	pause_variable=0;
 
