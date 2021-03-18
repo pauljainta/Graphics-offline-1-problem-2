@@ -112,9 +112,9 @@ void collide_with_bubble(int i)
         {
 
             double d=sqrt(pow(position_vectors[i].x-position_vectors[j].x,2)+pow(position_vectors[i].y-position_vectors[j].y,2));
-            if(checkInCircle(j) && d==(bubble_radius*2)+0.2)
+            if(checkInCircle(j) && d<=(bubble_radius*2)+0.2)
             {
-                printf("kj");
+                printf("kj\n");
                 speed_vectors[i].x*=-1;
                 speed_vectors[i].y*=-1;
                 speed_vectors[j].x*=-1;
@@ -462,8 +462,9 @@ void animate(){
 
                 if(!check_if_enterning(i))
                 {
+
                     collide_with_circle(i);
-                  //  collide_with_bubble(i);
+              //      collide_with_bubble(i);
                 }
 
            }
@@ -481,6 +482,8 @@ void animate(){
             speed_vectors[i].y*=(-1.0);
 
          }
+
+
 
 
         if(pause_variable==0){
